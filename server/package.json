@@ -1,0 +1,26 @@
+{
+  "name": "server",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "start": "nodemon index.js",
+    "debug": "node  --inspect index.js",
+    "test": "cross-env DATABASE_FILE=':memory:' SESSION_SECRET=notsecure jest --injectGlobals=false --runInBand",
+    "seed": "node db/seed/index.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^10.0.0",
+    "express": "^4.17.1",
+    "helmet": "^4.6.0",
+    "luxon": "^2.3.1",
+    "morgan": "^1.10.0",
+    "nodemon": "^2.0.20",
+    "sequelize": "^6.17.0",
+    "sqlite3": "^5.0.2"
+  },
+  "devDependencies": {
+    "cross-env": "^7.0.3",
+    "supertest": "^6.2.2"
+  }
+}
