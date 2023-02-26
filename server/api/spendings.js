@@ -1,17 +1,57 @@
 const router = require("express").Router();
 
 const Transaction = require("../db/models/transaction");
-const { DAILY, resolveDateRange } = require("../utils/helpers");
+const {
+  DAILY,
+  MONTHLY,
+  YEARLY,
+  resolveDateRange,
+} = require("../utils/helpers");
 
 const methodNotAllowed = (req, res, next) => {
   return res.header("Allow", "GET").sendStatus(405);
 };
 
+const formatDate = (date, frame) => {
+  switch (frame) {
+    case DAILY:
+      return date.toLocaleDateString("en-US");
+    case MONTHLY:
+      return date.toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "long",
+      });
+    case YEARLY:
+      return date.toLocaleDateString("en-US", { year: "numeric" });
+    default:
+      return "";
+  }
+};
+
+const incrementDate = (date, frame) => {
+  switch (frame) {
+    case DAILY:
+      return new Date(date.setDate(date.getDate() + 1));
+    case MONTHLY:
+      return new Date(date.setMonth(date.getMonth() + 1));
+    case YEARLY:
+      return new Date(date.setFullYear(date.getFullYear() + 1));
+    default:
+      return date;
+  }
+};
+
 const getSpending = async (req, res, next) => {
   const { query } = req;
-  const range = query.range ?? 6;
-  const frame = query.frame ?? DAILY;
+  const range = parseInt(query.range) || 6;
+  const frame = query.frame || DAILY;
 
+  if (!Number.isInteger(range) || range < 1) {
+    res.status(400).json({
+      error: "Invalid range parameter. Must be a positive integer.",
+    });
+    return;
+  }
   /*
    * Run `npm run seed` to refresh your database with transactions closer to-date
    */
@@ -24,7 +64,7 @@ const getSpending = async (req, res, next) => {
      * Groups transactions per day
      */
     const date = new Date(transaction.date);
-    const dateString = date.toLocaleDateString("en-US");
+    const dateString = formatDate(date, frame);
 
     if (dateString in totalAmountMap) {
       totalAmountMap[dateString] += transaction.amount;
@@ -35,12 +75,31 @@ const getSpending = async (req, res, next) => {
 
   const formattedSpendingData = [];
 
-  Object.keys(totalAmountMap).forEach((date) => {
-    formattedSpendingData.push({
-      totalAmount: +totalAmountMap[date].toFixed(2),
-      startDate: new Date(date).toISOString(),
-    });
+  // Include the current day/month/year in the spending data
+  formattedSpendingData.push({
+    totalAmount: 0,
+    startDate: formatDate(new Date(), frame),
   });
+
+  // Add spending data for each day/month/year in the range
+  let currentDate = new Date(from);
+  while (currentDate <= to) {
+    const dateString = formatDate(currentDate, frame);
+
+    if (!(dateString in totalAmountMap)) {
+      formattedSpendingData.push({
+        totalAmount: 0,
+        startDate: dateString,
+      });
+    } else {
+      formattedSpendingData.push({
+        totalAmount: +totalAmountMap[dateString].toFixed(2),
+        startDate: dateString,
+      });
+    }
+
+    incrementDate(currentDate, frame);
+  }
 
   const data = {
     spendings: formattedSpendingData.sort(function (a, b) {

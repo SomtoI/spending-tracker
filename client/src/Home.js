@@ -11,12 +11,31 @@ import {
 
 import axios from "axios";
 
+const FRAME_OPTIONS = [
+  { value: "daily", label: "Daily" },
+  { value: "monthly", label: "Monthly" },
+  { value: "yearly", label: "Yearly" },
+];
+
+const RANGE_OPTIONS = [
+  { value: 1, label: "1     " },
+  { value: 2, label: "2      " },
+  { value: 3, label: "3      " },
+  { value: 4, label: "4      " },
+  { value: 5, label: "5      " },
+  { value: 6, label: "6      " },
+];
+
 function Home() {
   const [spendings, setSpendings] = useState([]);
+  const [frame, setFrame] = useState("daily");
+  const [range, setRange] = useState(1);
 
   const fetchChartData = async () => {
     try {
-      const { data } = await axios.get(`/api/spendings`);
+      const { data } = await axios.get(
+        `/api/spendings?frame=${frame}&range=${range}`
+      );
       const { spendings } = data;
 
       setSpendings(spendings);
@@ -37,7 +56,7 @@ function Home() {
 
   useEffect(() => {
     fetchChartData();
-  }, []);
+  }, [frame, range]);
 
   return (
     <>
@@ -65,6 +84,37 @@ function Home() {
           />
         </LineChart>
       </ResponsiveContainer>
+
+      <label htmlFor="frame" style={{ marginRight: 10 }}>
+        Frame:
+      </label>
+      <select
+        id="frame"
+        value={frame}
+        onChange={(e) => setFrame(e.target.value)}
+        style={{ marginRight: 10 }}
+      >
+        {FRAME_OPTIONS.map((option) => (
+          <option key={option.value} value={option.value}>
+            {option.label}
+          </option>
+        ))}
+      </select>
+      <label htmlFor="range" style={{ marginRight: 10 }}>
+        Range:
+      </label>
+      <select
+        id="range"
+        value={range}
+        onChange={(e) => setRange(e.target.value)}
+        style={{ marginRight: 10 }}
+      >
+        {RANGE_OPTIONS.map((option) => (
+          <option key={option.value} value={option.value}>
+            {option.label}
+          </option>
+        ))}
+      </select>
     </>
   );
 }
