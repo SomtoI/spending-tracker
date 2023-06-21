@@ -1,8 +1,3 @@
-# Spending App Challenge
-
-Thanks for your interest in joining our team. The purpose of this challenge is to replicate a real-world working environment and to test a diverse set of skills, to see how you would work with us on our team. The challenge itself is similar to the work you would be doing on our team.
-
-Below is some high level detail about the project. Good luck!
 
 ## Language & Tools
 
@@ -58,8 +53,6 @@ To run the client, follow these steps:
 npm install
 ```
 
-You can ignore the severity vulnerabilities, this is a [known issue](https://github.com/facebook/create-react-app/issues/11174) related to `create-react-app` and are not real vulnerabilities.
-
 3. Start the client
 
 ```bash
@@ -84,4 +77,3 @@ To ensure you are using the correct version of prettier, make sure to format you
 
 To verify that the frontend is working properly, go to [http://localhost:3000](http://localhost:3000). You should see the homepage that is titled "Welcome to My Spending App" and a chart as below.
 
-![Starting Screen](https://storage.googleapis.com/m.hatchways.io/SpendingApp-screenshot.png)
